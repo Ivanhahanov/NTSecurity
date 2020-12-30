@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+  ntsec_server:
+    build:
+      context: ApiServer
+    ports:
+      - 80:80
+    volumes:
+      - type: bind
+        source: $PWD/ApiServer/app
+        target: /app
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+    environment:
+      - RULES_PATH=$PWD/ApiServer/app/static_sandbox/yara/rules
+      - MALWARE_PATH=$PWD/ApiServer/app/static_sandbox/yara/malware
+      - FILES_PATH=$PWD/ApiServer/app/static_sandbox/files
+
+  redis:
+    image: "redis:alpine"
+    command: redis-server --requirepass sOmE_sEcUrE_pAsS
+    ports:
+      - "6379:6379"
+    volumes:
+
+      - $PWD/redis-data:/var/lib/redis
+      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
